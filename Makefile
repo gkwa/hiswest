@@ -29,3 +29,5 @@ install: $(BIN)
 .PHONY: clean
 clean:
 	$(CLEAN) $(BIN)
+	$(CLEAN) output.txt
+
