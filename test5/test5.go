@@ -1,6 +1,8 @@
 package test5
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -28,13 +30,26 @@ func RunTest5() {
 		return
 	}
 
-	body, err := io.ReadAll(resp.Body)
+	var bodyBytes []byte
+	bodyBytes, err = io.ReadAll(resp.Body) // resp.Body is an io.ReadCloser
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error reading response body: %v\n", err)
 		return
 	}
 
-	_, err = fmt.Fprintf(os.Stdout, "%s\n", body)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error reading response body: %v\n", err)
+		return
+	}
+
+	var prettyJSON bytes.Buffer
+	err = json.Indent(&prettyJSON, bodyBytes, "", "\t")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error formatting JSON: %v\n", err)
+		return
+	}
+
+	_, err = fmt.Fprintf(os.Stdout, "%s\n", prettyJSON.String())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error writing response body to stdout: %v\n", err)
 		return
